@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel ="stylesheet" href = "style.css">
+</head>
+<body>
+<div id="actions">
+  <div class = "action">
+    <h1>Imagen objetivo:</h1>
+    <div class="inputoutput">
+      <img id="imageSrc" alt="No Image" />
+      <input type="file" id="fileInput" name="file" />
+    </div>
+  </div>
+  <div class = "action">
+    <h1>Imagen resultado: </h1>
+    <div class="inputoutput">
+      <canvas id="canvasOutput" ></canvas>
+      <div class="caption">canvasOutput</div>
+    </div>
+  </div>
+  <div id ="parameters">
+    <label>Cantidad de generaciones maxima: </label>
+    <input type="number" min = "0"><br><br>
+    <label>Cantidad de inviduos por generacion: </label>
+    <input type="number" min = "0"><br><br>
+    <label>Porcentaje de individuos que se seleccionarán entre cada generación: </label>
+    <div class="wrapper">
+      <input type="range" min="0" step="1" max="100" value="0" />
+      <span class="slide-value">0</span>
+    </div><br><br>
+    <label>Porcentaje de individuos que se les permitirá mutar: </label>
+    <div class="wrapper">
+      <input type="range" min="0" step="1" max="100" value="0" />
+      <span class="slide-value">0</span>
+    </div><br><br>
+    <label>Porcentaje de individuos que se les permitirá combinar: </label>
+    <div class="wrapper">
+      <input type="range" min="0" step="1" max="100" value="0" />
+      <span class="slide-value">0</span>
+    </div><br><br>
+</div>
+
+<script async src="https://docs.opencv.org/3.4.0/opencv.js" type="text/javascript"></script>
+<script src="script.js" type="text/javascript"></script>
+
+</body>
+</html>
