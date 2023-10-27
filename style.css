@@ -34,5 +34,8 @@ img {
     margin:25px;
 }
 
-
+#canvasOutput{
+    width: 100%;
+    height: 100%;
+}
 
