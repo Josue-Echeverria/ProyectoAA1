@@ -1,8 +1,14 @@
 //Variables globales
-let NUMLENGHT = null;
-let MAXLINEAS = 50;
+//Dimensiones de la imagen objetivo
+let HEIGHT = 0; 
+let WIDTH = 0;
+
+//Parametros de entrada
+let PORCENTAJE_PUEDE_MUTAR = 100
+let PORCENTAJE_PUEDE_COMBINARSE = 100
+let MAXLINEAS = 10; //Maxima cantidad de lineas por individuo 
 let TAMPOBLACION = 5;
-let GENERACIONES = 1000;
+let GENERACIONES = 5;
 
 class Individuo{
     constructor(cromosoma = null){
@@ -14,23 +20,27 @@ class Individuo{
         this.fitness = null
     }
     cromosomaAleatorio(){
-        let puntosAleatorios = [];
+        let puntosAleatoriosH = [];
+        let puntosAleatoriosW = [];
         let rectasAleatorias = [];
 
-        let cantidadLineas = Math.floor(Math.random() * MAXLINEAS)
+        let cantidadLineas = Math.floor(1+(Math.random() * MAXLINEAS))
         for(let i = 0; i < cantidadLineas; i++) {
-            for(let j=0; j < 4; j++)
-                puntosAleatorios.push(Math.floor(Math.random() * 500));//Numero aleatorio de 0 a 500 tambien es temp
-            rectasAleatorias.push([[puntosAleatorios[0],puntosAleatorios[1]]
-                                 , [puntosAleatorios[2],puntosAleatorios[3]]])
-            puntosAleatorios = []
+            for(let j=0; j < 4; j++){
+                puntosAleatoriosW.push(Math.floor(Math.random() * WIDTH));
+                puntosAleatoriosH.push(Math.floor(Math.random() * HEIGHT))
+            }
+            rectasAleatorias.push([[puntosAleatoriosH[0],puntosAleatoriosW[0]]
+                                 , [puntosAleatoriosH[1],puntosAleatoriosW[1]]])
+            puntosAleatoriosH = []
+            puntosAleatoriosW = []
         }                                                        //Deberia de ser hasta TAMAÑO DE LA IMAGEM
         return rectasAleatorias;
     }
 
     cruzar(alter, cantidadGenes = null) {
         if(cantidadGenes === null)
-            cantidadGenes = Math.floor((Math.random() * Math.min(this.cromosoma.length, alter.cromosoma.length)))
+            cantidadGenes = Math.floor(this.cromosoma.length*(PORCENTAJE_PUEDE_COMBINARSE/100))
     
         let nuevoIndividuo = new Individuo(this.cromosoma)
 
@@ -46,10 +56,15 @@ class Individuo{
  
     mutar(cantidadGenes = null) {
         if(cantidadGenes === null)
-            cantidadGenes = Math.floor((Math.random() * this.cromosoma.length))
+            cantidadGenes = Math.floor(this.cromosoma.length*(PORCENTAJE_PUEDE_MUTAR/100))
+
 
         let nuevoIndividuo = new Individuo(this.cromosoma)
 
+        /**
+         * Recordatorio: aqui se seleccionan DE FORMA ALEATORIA cuales seran las rectas que se modificaran
+         *  PUEDE QUE SE MODIFIQUE LA MISMA RECTA 2 VECES O NIGUNA VEZ
+         */
         let posicionesAleatorias = []
         for(let i = 0; i<cantidadGenes; i++)
             posicionesAleatorias.push(Math.floor((Math.random() * this.cromosoma.length)))
@@ -60,50 +75,61 @@ class Individuo{
             punto1 = Math.round((Math.random() * 1))
             punto0 = Math.round((Math.random() * 1))
 
+            console.log()
             if(punto0)  
-                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][0][0] += (10*(-1)**(Math.round(Math.random())))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
+                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][0][0] += (10*((-1)**(Math.round(Math.random()))))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
             else
-                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][0][1] += (10*(-1)**(Math.round(Math.random())))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
+                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][0][1] += (10*((-1)**(Math.round(Math.random()))))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
             
             if(punto1)  
-                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][1][0] += (10*(-1)**(Math.round(Math.random())))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
+                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][1][0] += (10*((-1)**(Math.round(Math.random()))))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
             else
-                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][1][1] += (10*(-1)**(Math.round(Math.random())))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
+                nuevoIndividuo.cromosoma[posicionesAleatorias[i]][1][1] += (10*((-1)**(Math.round(Math.random()))))// ESTA PARTE PUEDE CAMBIAR YA QUE ES ALEATORIA 
             
-            return nuevoIndividuo
         }
+        return nuevoIndividuo
     }
     calcularFitness(objetivo){
             
-        let indiv = new cv.Mat(500, 500, cv.CV_8U);//Imagen de 500*500
-        indiv.setTo(new cv.Scalar(255));
-        let tempp = null
-        let temppp = null
+        let imagenIndividuo = new cv.Mat(WIDTH, HEIGHT, cv.CV_8U); //Segun el tamaño de la imagen objetivo
+        imagenIndividuo.setTo(new cv.Scalar(255));
+        let punto1 = null
+        let punto2 = null
         for(let j = 0; j<this.cromosoma.length; j++){
-            tempp = new cv.Point(this.cromosoma[j][0][0],this.cromosoma[j][0][1])
-            temppp = new cv.Point(this.cromosoma[j][1][0],this.cromosoma[j][1][1])
-            cv.line(indiv, tempp, temppp, [0, 0, 0, 0], 1)
+            punto1 = new cv.Point(this.cromosoma[j][0][0],this.cromosoma[j][0][1])
+            punto2 = new cv.Point(this.cromosoma[j][1][0],this.cromosoma[j][1][1])
+            cv.line(imagenIndividuo, punto1, punto2, [0, 0, 0, 0], 3)
         }
         /**
          * UNA VEZ GENERADA LA IMAGEN DEBERIA DE COMPARAR CON EL OBJETIVO AQUI
          * Y generar un fitnes y guardarlo
-         * TO DO
+         * ESTO ES LO QUE SE DEBE DE CAMBIAR
          */
-        this.fitness = 0
-        cv.imshow('canvasOutput', indiv);
+        let acummulador = 0;
+        for(let i = 0; i<HEIGHT;i++){
+            for(let j = 0; j<WIDTH; j++){
+                if(objetivo.ucharPtr(i,j)[0] !== imagenIndividuo.ucharPtr(i,j)[0]){//Si los pixeles son diferentes
+                    acummulador += 1
+                }
+            }
+        }
+        this.fitness = acummulador
+        cv.imshow('canvasOutput', imagenIndividuo);
         return this.cromosoma
     }
 }
 
 class Poblacion{
     constructor(poblacion = null){
+        this.poblacion = []
         if(poblacion === null){
-            this.poblacion = []
             for(let i = 0; i < TAMPOBLACION;i++){
                 this.poblacion.push(new Individuo())
             }
         }else{
-            this.poblacion = JSON.parse(JSON.stringify(poblacion));
+     
+            for(let i = 0; i<poblacion.length; i++)
+                this.poblacion.push(poblacion[i]);
         }
         this.mejorFitness = 0
     }
@@ -122,52 +148,83 @@ class Poblacion{
 
     nuevaPoblacion(objetivo){
         this.poblacion = this.ordenarFitness(objetivo)
-        const seleccion = this.poblacion.slice(0,10)// DEBERIA DE SER EL 10% de POBLACIONLENGTH
+        
+        const seleccion = this.poblacion.slice(0,Math.round(TAMPOBLACION*0.1)) //El 10% de la poblacion
+        this.mejorFitness = seleccion[0].fitness
+        console.log(this.poblacion)
         let temp = []
-        for(let i = 0; i < 3; i++)//deberia de ser el 30% 
+        for(let i = 0; i < seleccion.length*3; i++) //Se generan clones de la seleccion
             temp = temp.concat(seleccion)
-        console.log(temp)
+
+      //  console.log(temp)
         const mutados = []
-        for(let i = 0; i < seleccion.length; i++){//30%
+        for(let i = 0; i < temp.length; i++){//Se mutan los clones (30%)
             mutados.push(temp[i].mutar())
         }
-
-        let combinaciones = []//30%
+        //console.log(mutados)
+        let combinaciones = []
         for(let i = 0;i<temp.length; i++){
-            combinaciones.push(temp[i])
+            combinaciones.push(temp[i]) //Se preparan los clones para cruzarlos 
         }
-        for (let i = combinaciones.length - 1; i > 0; i--) {//Shuffle de individuos
+        for (let i = combinaciones.length - 1; i > 0; i--) {//Shuffle de clones
             let j = Math.floor(Math.random() * (i + 1));
             [combinaciones[i], combinaciones[j]] = [combinaciones[j], combinaciones[i]];
         }
-        for (let i = 1; i < combinaciones.length - 2; i++){
+        for (let i = 1; i < combinaciones.length - 2; i++){ //Se cruzan los clones (30%)
             combinaciones[i-1] = combinaciones[i].cruzar(combinaciones[i-1])
         }
         
         let combinacionesMutados = []
         for (let i = 0; i < combinaciones.length ; i++){
-            combinacionesMutados.push(combinaciones[i].mutar())
+            combinacionesMutados.push(combinaciones[i].mutar()) //Se clonan los clones cruzados y se mutan (30%)
         }
-        return new Poblacion(seleccion + mutados + combinaciones + combinacionesMutados)
+
+        //Se unen los individuos Mutados y cruzados
+        const nuevaPoblacion =  new Poblacion([].concat(seleccion, mutados, combinaciones, combinacionesMutados)) 
+        
+        return nuevaPoblacion
     }
 }
 
 
 
 
-
-//  ESTA PARTE PA ABAJO ES PARA PROBAR
+/**
+ *ESTA PARTE PA ABAJO ES PARA PROBAR
+ * CARGA LA IMAGEN AUTOMATICAMENTE Y GENERA LA POBLACION CON DATOS PREDETERMINADOS
+ */
+//  
 function temp(){
-let primeraPoblacion = new Poblacion()
-let goal = null // deberia definirse como el objetivo
-let nuevaPoblacion = null
-for(let i = 0; i<2; i++){
-    nuevaPoblacion = primeraPoblacion.nuevaPoblacion()
-} 
-}
-/*    let mat = cv.imread(imgElement);
-    console.log(mat.ucharPtr(100,100))//COMO SACAR PUNTOS DE LA IMAGEN 
 
+    let divImagen = document.getElementById('imageSrc');//CARGA LA IMAGEN AUTOMATICAMENTE
+    divImagen.src = "img/img1.png"
+    let mat = cv.imread(divImagen);
+    cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY);
+    let img = document.getElementById('imageId');
+    
+    WIDTH = divImagen.naturalWidth
+    HEIGHT = divImagen.naturalHeight
+
+    let goal = mat // El objetivo
+
+    let nuevaPoblacion = new Poblacion()  
+    for(let i = 0; i<GENERACIONES; i++){
+        nuevaPoblacion = nuevaPoblacion.nuevaPoblacion(goal)
+
+    }
+    
+
+
+/*let imgElement = document.getElementById('imagen1');
+let inputElement = document.getElementById('fileInput');
+inputElement.addEventListener('change', (e) => {
+    imgElement.src = URL.createObjectURL(e.target.files[0]);
+    }, false);
+imgElement.onload = function(){
+} */
+
+}//COMO SACAR PUNTOS DE LA IMAGEN 
+/* 
     let p1 = new cv.Point(0, 0);
     let p2 = new cv.Point(20, 20);
     let p3 = new cv.Point(10, 0);
