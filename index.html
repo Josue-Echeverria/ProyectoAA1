@@ -6,43 +6,51 @@
 </head>
 <body>
 <div id="actions">
+  
   <div class = "action">
     <h1>Imagen objetivo:</h1>
     <div class="inputoutput" id = "imagenObjetivo">
       <img id="imageSrc" alt="No Image" />
-      <input type="file" id="fileInput" name="file" />
+      <input type="file" id="fileInput"/>
     </div>
   </div>
+
   <div class = "action">
     <h1>Imagen resultado: </h1>
     <div class="inputoutput">
       <canvas id="canvasOutput" ></canvas>
-      <div class="caption">canvasOutput</div>
     </div>
   </div>
+  
   <div id ="parameters">
     <label>Cantidad de generaciones maxima: </label>
-    <input type="number" min = "0"><br><br>
+    <input id = "maxGeneraciones" type="number" min = "0" value  = "5" onchange="actualizarMaxGeneraciones(this)"><br><br>
+    
     <label>Cantidad de inviduos por generacion: </label>
-    <input type="number" min = "0"><br><br>
+    <input id = "cantIndividuos" type="number" min = "0" value  = "5" onchange="actualizarCantIndividuos(this)"><br><br><br>
+    
     <label>Porcentaje de individuos que se seleccionarán entre cada generación: </label>
     <div class="wrapper">
-      <input type="range" min="0" step="1" max="100" value="0" />
-      <span class="slide-value">0</span>
+      <input class = "inputRange" onchange="actualizarSeleccionados()"  id= "porcentajeIndividuosSeleccionados" type="range" min="0" step="1" max="100" value="10" />
+      <span id = "spanSeleccionados">10%</span>
     </div><br><br>
+    
     <label>Porcentaje de individuos que se les permitirá mutar: </label>
     <div class="wrapper">
-      <input type="range" min="0" step="1" max="100" value="0" />
-      <span class="slide-value">0</span>
+      <input  class = "inputRange" onchange="actualizarMutados()" id = "porcentajeIndividuosMutados" type="range" min="0" step="1" max="100" value="30" />
+      <span id = "spanMutados">30%</span>
     </div><br><br>
+    
     <label>Porcentaje de individuos que se les permitirá combinar: </label>
     <div class="wrapper">
-      <input type="range" min="0" step="1" max="100" value="0" />
-      <span class="slide-value">0</span>
+      <input  class = "inputRange" onchange="actualizarCombinados()" id = "porcentajeIndividuosCombinados" type="range" min="0" step="1" max="100" value="60" />
+      <span id = "spanCombinados">60%</span>
     </div><br><br>
+
+    <button id = "beginButton" onclick="comenzar()">Comenzar</button>
 </div>
 
-<script async src="https://docs.opencv.org/3.4.0/opencv.js" type="text/javascript" onload="temp()"></script>
+<script async src="https://docs.opencv.org/3.4.0/opencv.js" type="text/javascript"></script>
 <script src="script.js" type="text/javascript"></script>
 
 <img id = "imagen1" src =  "img/img1.png" style = display:none>

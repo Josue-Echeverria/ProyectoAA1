@@ -39,3 +39,12 @@ img {
     height: 100%;
 }
 
+#beginButton{
+    font-size : 25px;
+    height: 75px;
+    width: 300px;
+}
+
+.inputRange{
+    width: 300px;
+}
